@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // <--- Importamos o navegador
 import { Header } from '../components/Header';
 import { petService } from '../services/petService';
 import type { Pet } from '../types/pet';
 
 export function Home() {
   const [pets, setPets] = useState<Pet[]>([]);
+  const navigate = useNavigate(); // <--- Inicializamos o "GPS"
 
   useEffect(() => {
     try {
-      // Tenta buscar os dados
       const dados = petService.getPets();
       setPets(dados);
     } catch (error) {
@@ -21,7 +22,17 @@ export function Home() {
       <Header />
 
       <main className="p-8 max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6">Painel de Controle</h2>
+        {/* Agora o título e o botão ficam lado a lado */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold text-gray-800">Painel de Controle</h2>
+          
+          <button 
+            onClick={() => navigate('/pet/new')}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold shadow-md transition-colors flex items-center gap-2"
+          >
+            + Novo Pet
+          </button>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {pets.map((pet) => (
