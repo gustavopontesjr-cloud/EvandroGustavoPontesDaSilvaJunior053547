@@ -1,20 +1,21 @@
-import { LogOut, PawPrint, Users } from 'lucide-react'; // Adicionei Users
-import { useNavigate, useLocation } from 'react-router-dom'; // Adicionei useLocation
+import { LogOut, PawPrint, Users } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../services/authService';
 
 export function Header() {
   const navigate = useNavigate();
-  const location = useLocation(); // Para saber em qual página estamos e marcar o botão
+  const location = useLocation();
 
   function handleLogout() {
     authService.logout();
     navigate('/login');
   }
 
-  // Função para verificar se o link está ativo (visual)
+  // AJUSTE 1: Mudei de text-gray-400 para text-white nos links inativos
+  // Mantive o active com text-primary (verde) para saber onde estamos
   const isActive = (path: string) => location.pathname.startsWith(path) 
     ? "text-primary bg-primary/10" 
-    : "text-gray-400 hover:text-white hover:bg-white/5";
+    : "text-white hover:text-primary hover:bg-white/5"; // <--- Agora é text-white
 
   return (
     <header className="bg-surface border-b border-gray-800 sticky top-0 z-50">
@@ -49,9 +50,10 @@ export function Header() {
           </nav>
         </div>
 
+        {/* AJUSTE 2: Botão SAIR agora é branco (text-white) */}
         <button 
           onClick={handleLogout}
-          className="flex items-center gap-2 text-gray-500 hover:text-red-400 transition-colors text-sm font-bold uppercase tracking-wider group"
+          className="flex items-center gap-2 text-white hover:text-red-400 transition-colors text-sm font-bold uppercase tracking-wider group"
         >
           <span className="hidden sm:inline group-hover:text-red-400 transition-colors">Sair</span>
           <LogOut className="w-4 h-4" />

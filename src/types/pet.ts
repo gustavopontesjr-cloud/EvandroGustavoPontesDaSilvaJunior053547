@@ -1,4 +1,5 @@
-// Extraímos o tipo Foto para poder usar no Tutor também
+import type { Tutor } from './tutor'; 
+
 export interface Foto {
   id: number;
   url: string;
@@ -10,11 +11,18 @@ export interface Pet {
   nome: string;
   idade: number;
   raca: string;
-  foto?: Foto; // Agora usa o tipo exportado acima
+  especie?: string; // Mantemos opcional, pois o servidor não manda
+  
+  // O SEGREDO ESTÁ AQUI: O servidor manda uma lista!
+  tutores?: Tutor[]; 
+  
+  foto?: Foto;
 }
 
 export interface PetRequest {
   nome: string;
   idade: number;
   raca: string;
+  especie: string;
+  tutorId?: number;
 }
