@@ -9,17 +9,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Customização da barra de rolagem para combinar */
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: theme('colors.background'); 
 }
+
 ::-webkit-scrollbar-thumb {
   background: theme('colors.surface'); 
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: theme('colors.primary'); 
 }

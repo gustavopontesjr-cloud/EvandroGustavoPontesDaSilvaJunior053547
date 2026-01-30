@@ -229,7 +229,6 @@ export function TutorDetails() {
       />
 
       <main className="max-w-6xl mx-auto px-6 py-8">
-        {/* CORRIGIDO: Botão Voltar agora é branco */}
         <button onClick={() => navigate('/tutores')} className="flex items-center gap-2 text-white hover:text-gray-200 mb-6">
           <ArrowLeft className="w-4 h-4" /> <span>Voltar</span>
         </button>
@@ -273,7 +272,6 @@ export function TutorDetails() {
                   Vincular
                 </Button>
               </div>
-              {/* CORRIGIDO: Mensagem de ajuda agora é branca */}
               <p className="text-xs text-white mt-2">
                 Digite o ID de um pet existente para adicioná-lo a este tutor.
               </p>
@@ -376,7 +374,6 @@ export function TutorDetails() {
               </h2>
               
               {!tutor.pets || tutor.pets.length === 0 ? (
-                /* CORRIGIDO: Mensagem de "sem pets" agora é branca */
                 <div className="bg-surface border border-dashed border-gray-800 rounded-xl p-8 text-center text-white">
                   Este tutor ainda não tem pets vinculados.
                 </div>

@@ -15,7 +15,6 @@ export function Button({
 }: ButtonProps) {
   
   const variants = {
-    // Neon principal (texto preto para contraste no verde)
     primary: "bg-primary text-black font-bold hover:bg-primary-hover focus:ring-primary",
     danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
     outline: "border border-gray-700 text-text-main hover:bg-surface focus:ring-gray-500"

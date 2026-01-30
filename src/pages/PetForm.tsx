@@ -57,7 +57,6 @@ export function PetForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
-              {/* CAMPO DE TEXTO AQUI TAMBÉM */}
               <div>
                 <Input
                   label="Espécie"

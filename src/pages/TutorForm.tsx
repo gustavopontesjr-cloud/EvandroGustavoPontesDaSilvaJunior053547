@@ -7,12 +7,11 @@ import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { tutorService } from '../services/tutorService';
 
-// Interface local para o Formulário (aceita máscaras como string)
 interface TutorFormSchema {
   nome: string;
   email: string;
-  cpf: string;       // String aqui para aceitar pontos e traços
-  telefone: string;  // String aqui para aceitar parenteses
+  cpf: string;
+  telefone: string;
   endereco: string;
 }
 
@@ -20,10 +19,8 @@ export function TutorForm() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   
-  // Usamos o Schema local para o formulário não reclamar
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<TutorFormSchema>();
 
-  // --- MÁSCARAS ---
   const maskCPF = (value: string) => {
     return value
       .replace(/\D/g, '')
@@ -43,11 +40,11 @@ export function TutorForm() {
   async function handleSave(data: TutorFormSchema) {
     try {
       setIsLoading(true);
-      // Limpeza: Remove a máscara antes de enviar para a API
+      
       const payload = { 
         ...data, 
-        cpf: Number(data.cpf.replace(/\D/g, '')), // Vira número puro
-        telefone: data.telefone.replace(/\D/g, '') // Vira string de números pura
+        cpf: Number(data.cpf.replace(/\D/g, '')),
+        telefone: data.telefone.replace(/\D/g, '')
       };
       
       await tutorService.create(payload);

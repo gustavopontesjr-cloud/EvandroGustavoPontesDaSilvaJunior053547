@@ -154,7 +154,6 @@ export function PetDetails() {
       />
 
       <main className="max-w-4xl mx-auto px-6 py-8">
-        {/* CORRIGIDO: Botão Voltar agora é branco */}
         <button onClick={() => navigate('/pets')} className="flex items-center gap-2 text-white hover:text-gray-200 mb-6">
           <ArrowLeft className="w-4 h-4" /> <span>Voltar</span>
         </button>
@@ -218,7 +217,6 @@ export function PetDetails() {
                   ))}
                 </div>
               ) : (
-                /* CORRIGIDO: Mensagens agora são brancas/cinza claro */
                 <div className="text-center py-6 bg-black/20 rounded-lg">
                   <p className="text-white text-sm italic">Este pet não possui tutor vinculado.</p>
                   <p className="text-xs text-gray-300 mt-2">Vincule-o através da tela de Tutores.</p>

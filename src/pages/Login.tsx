@@ -5,10 +5,13 @@ import { LayoutDashboard } from 'lucide-react';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { authService } from '../services/authService';
+import { AuthState } from '../services/AuthState';
+import { useAuth } from '../contexts/AuthContext';
 import type { LoginRequest } from '../types/auth';
 
 export function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
 
@@ -18,8 +21,17 @@ export function Login() {
     try {
       setIsLoading(true);
       setLoginError('');
+      
       await authService.login(data);
-      navigate('/pets');
+      const token = AuthState.getToken();
+
+      if (token) {
+        login(token);
+        navigate('/pets');
+      } else {
+        setLoginError('Erro ao recuperar token de acesso.');
+      }
+
     } catch (error) {
       setLoginError('Erro ao entrar. Verifique usuário e senha.');
       console.error(error);
@@ -37,7 +49,6 @@ export function Login() {
             <LayoutDashboard className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-white tracking-tight">Pet Manager</h1>
-          {/* Texto mais claro agora (gray-300 em vez de muted) */}
           <p className="text-gray-300 mt-2 font-medium">Acesse o painel administrativo</p>
         </div>
 
@@ -69,7 +80,6 @@ export function Login() {
         </form>
 
         <div className="mt-8 text-center">
-          {/* Rodapé mais visível */}
           <p className="text-xs text-gray-400 font-semibold tracking-wider">
             SECURE SYSTEM • 2026
           </p>

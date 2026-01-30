@@ -26,13 +26,11 @@ export const tutorService = {
     return response.data;
   },
 
-  // --- NOVO: FUNÇÃO DELETAR ---
   delete: async (id: number) => {
     const response = await api.delete(`/v1/tutores/${id}`);
     return response.data;
   },
 
-  // --- FUNÇÕES DE VÍNCULO ---
   linkPet: async (tutorId: number, petId: number) => {
     const response = await api.post(`/v1/tutores/${tutorId}/pets/${petId}`);
     return response.data;

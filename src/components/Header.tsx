@@ -1,27 +1,24 @@
 import { LogOut, PawPrint, Users } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { authService } from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
 
 export function Header() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
 
   function handleLogout() {
-    authService.logout();
-    navigate('/login');
+    logout();
   }
 
-  // AJUSTE 1: Mudei de text-gray-400 para text-white nos links inativos
-  // Mantive o active com text-primary (verde) para saber onde estamos
   const isActive = (path: string) => location.pathname.startsWith(path) 
     ? "text-primary bg-primary/10" 
-    : "text-white hover:text-primary hover:bg-white/5"; // <--- Agora é text-white
+    : "text-white hover:text-primary hover:bg-white/5";
 
   return (
     <header className="bg-surface border-b border-gray-800 sticky top-0 z-50">
       <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
         
-        {/* Logo */}
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-3 text-primary">
             <div className="p-2 bg-primary/10 rounded-lg">
@@ -30,7 +27,6 @@ export function Header() {
             <span className="font-bold text-xl tracking-wide text-white hidden sm:block">Pet Manager</span>
           </div>
 
-          {/* Navegação Principal */}
           <nav className="flex items-center gap-2">
             <button 
               onClick={() => navigate('/pets')}
@@ -50,7 +46,6 @@ export function Header() {
           </nav>
         </div>
 
-        {/* AJUSTE 2: Botão SAIR agora é branco (text-white) */}
         <button 
           onClick={handleLogout}
           className="flex items-center gap-2 text-white hover:text-red-400 transition-colors text-sm font-bold uppercase tracking-wider group"

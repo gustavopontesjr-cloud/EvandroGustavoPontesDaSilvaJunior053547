@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Search, Plus, User, MapPin, Phone, ChevronLeft, ChevronRight, ChevronRightCircle } from 'lucide-react';
 import { Header } from '../components/Header';
+import { Button } from '../components/Button';
 import { tutorService } from '../services/tutorService';
 import type { Tutor } from '../types/tutor';
-import { Search, Plus, User, MapPin, Phone, ChevronLeft, ChevronRight, ChevronRightCircle } from 'lucide-react';
-import { Button } from '../components/Button';
 
 export function Tutors() {
   const navigate = useNavigate();
@@ -85,7 +85,6 @@ export function Tutors() {
                   key={tutor.id} 
                   className="bg-surface rounded-xl border border-gray-800 p-4 sm:p-6 hover:border-primary/50 transition-all group flex flex-col sm:flex-row items-start sm:items-center gap-6 relative"
                 >
-                  {/* Foto */}
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/50 overflow-hidden flex-shrink-0 border-2 border-gray-700 group-hover:border-primary transition-colors">
                     {tutor.foto ? (
                       <img src={tutor.foto.url} alt={tutor.nome} className="w-full h-full object-cover" />
@@ -96,14 +95,12 @@ export function Tutors() {
                     )}
                   </div>
 
-                  {/* Informações */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
-                       <h3 className="text-xl font-bold text-white truncate">{tutor.nome}</h3>
-                       {/* NOVO ID NEON AQUI */}
-                       <span className="text-xs text-cyan-400 font-bold bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-400/20">
-                         #{tutor.id}
-                       </span>
+                        <h3 className="text-xl font-bold text-white truncate">{tutor.nome}</h3>
+                        <span className="text-xs text-cyan-400 font-bold bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-400/20">
+                          #{tutor.id}
+                        </span>
                     </div>
                     
                     <div className="flex flex-col sm:flex-row sm:gap-6 gap-2 text-sm">

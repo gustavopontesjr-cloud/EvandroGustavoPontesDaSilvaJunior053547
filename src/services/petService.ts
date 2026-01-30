@@ -26,7 +26,6 @@ export const petService = {
     return response.data;
   },
 
-  // --- NOVO: FUNÇÃO DE DELETAR ---
   delete: async (id: number) => {
     const response = await api.delete(`/v1/pets/${id}`);
     return response.data;

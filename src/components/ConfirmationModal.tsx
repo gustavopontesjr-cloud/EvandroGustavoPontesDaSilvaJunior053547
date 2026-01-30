@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle, X } from 'lucide-react'; // Adicionei CheckCircle
+import { AlertTriangle, CheckCircle, X } from 'lucide-react';
 import { Button } from './Button';
 
 interface ConfirmationModalProps {
@@ -9,7 +9,7 @@ interface ConfirmationModalProps {
   description: string;
   isLoading?: boolean;
   variant?: 'danger' | 'success';
-  singleButton?: boolean; // NOVO: Para esconder o botão cancelar
+  singleButton?: boolean;
 }
 
 export function ConfirmationModal({ 
@@ -20,7 +20,7 @@ export function ConfirmationModal({
   description, 
   isLoading = false,
   variant = 'danger',
-  singleButton = false // Padrão é falso (mostra os dois botões)
+  singleButton = false
 }: ConfirmationModalProps) {
   if (!isOpen) return null;
 
@@ -37,7 +37,6 @@ export function ConfirmationModal({
         </button>
 
         <div className="flex flex-col items-center text-center">
-          {/* Ícone muda conforme a variante */}
           <div className={`p-3 rounded-full mb-4 ${variant === 'danger' ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
             {variant === 'danger' ? <AlertTriangle className="w-8 h-8" /> : <CheckCircle className="w-8 h-8" />}
           </div>
@@ -48,11 +47,10 @@ export function ConfirmationModal({
           </p>
 
           <div className="flex w-full gap-3">
-            {/* Só mostra Cancelar se singleButton for falso */}
             {!singleButton && (
               <Button 
                 variant="outline" 
-                onClick={onClose}
+                onClick={onClose} 
                 className="flex-1 border-gray-700 text-gray-300 hover:bg-gray-800"
                 disabled={isLoading}
               >

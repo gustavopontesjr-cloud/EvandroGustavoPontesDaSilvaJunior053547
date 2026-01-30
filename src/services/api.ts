@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { AuthState } from './AuthState';
 
-// Configuração básica com o endereço do edital
 export const api = axios.create({
   baseURL: 'https://pet-manager-api.geia.vip',
   headers: {
@@ -9,11 +8,12 @@ export const api = axios.create({
   },
 });
 
-// Interceptador: Antes de cada requisição, insere o token automaticamente
 api.interceptors.request.use(
   (config) => {
     const token = AuthState.getToken();
-    if (token) {
+    const isLoginRequest = config.url?.includes('/login') || config.url?.includes('/autenticacao');
+
+    if (token && !isLoginRequest) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -21,14 +21,16 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptador de Erro: Se der erro 401 (token inválido), desloga o usuário
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isLoginRequest = error.config?.url?.includes('/login') || error.config?.url?.includes('/autenticacao');
+
+    if (error.response?.status === 401 && !isLoginRequest) {
       AuthState.clearToken();
-      // Opcional: Redirecionar para login aqui se necessário
+      window.location.href = '/login'; 
     }
+    
     return Promise.reject(error);
   }
 );

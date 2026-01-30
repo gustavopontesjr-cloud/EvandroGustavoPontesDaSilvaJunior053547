@@ -11,11 +11,8 @@ export interface Pet {
   nome: string;
   idade: number;
   raca: string;
-  especie?: string; // Mantemos opcional, pois o servidor não manda
-  
-  // O SEGREDO ESTÁ AQUI: O servidor manda uma lista!
+  especie?: string;
   tutores?: Tutor[]; 
-  
   foto?: Foto;
 }
 
