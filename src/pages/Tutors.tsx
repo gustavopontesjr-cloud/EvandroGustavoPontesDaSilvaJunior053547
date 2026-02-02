@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, User, MapPin, Phone, ChevronLeft, ChevronRight, ChevronRightCircle } from 'lucide-react';
-import { Header } from '../components/Header';
+import { Search, Plus, User, MapPin, Phone, ChevronLeft, ChevronRight, ExternalLink, MessageCircle } from 'lucide-react';
 import { Button } from '../components/Button';
 import { tutorService } from '../services/tutorService';
 import type { Tutor } from '../types/tutor';
@@ -39,123 +38,160 @@ export function Tutors() {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="max-w-[1200px] mx-auto px-6 py-8">
-        
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Tutores</h1>
-            <p className="text-white">Gerenciamento de Tutores</p>
-          </div>
+  const getMapLink = (address: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  const getPhoneLink = (phone: string) => `tel:${phone.replace(/\D/g,'')}`;
+  const getWhatsAppLink = (phone: string) => `https://wa.me/${phone.replace(/\D/g,'')}`;
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-            <div className="relative flex-1 sm:w-80">
-              <Search className="absolute left-3 top-3.5 w-5 h-5 text-gray-500" />
-              <input 
-                type="text"
-                placeholder="Buscar por nome..."
-                className="w-full pl-10 pr-4 py-3 bg-surface border border-gray-800 rounded-lg text-white focus:ring-1 focus:ring-primary focus:border-primary focus:outline-none transition-all placeholder-gray-600"
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setPage(0);
-                }}
-              />
-            </div>
-            
-            <Button 
-              onClick={() => navigate('/tutores/novo')}
-              className="flex items-center justify-center gap-2 px-6 py-3 font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
-            >
-              <Plus className="w-5 h-5 text-black" />
-              <span className="text-black">NOVO TUTOR</span>
-            </Button>
-          </div>
+  return (
+    <div className="space-y-8">
+      
+      {/* Header com Design Limpo */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-white/5">
+        <div>
+          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-2">Tutores</h1>
+          <p className="text-gray-400 font-medium">Gerencie sua base de clientes</p>
         </div>
 
-        {loading ? (
-          <div className="text-center py-20 text-gray-500 animate-pulse">Carregando dados...</div>
-        ) : (
-          <>
-            <div className="flex flex-col gap-4 mb-8">
-              {tutors.map((tutor) => (
-                <div 
-                  key={tutor.id} 
-                  className="bg-surface rounded-xl border border-gray-800 p-4 sm:p-6 hover:border-primary/50 transition-all group flex flex-col sm:flex-row items-start sm:items-center gap-6 relative"
-                >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-black/50 overflow-hidden flex-shrink-0 border-2 border-gray-700 group-hover:border-primary transition-colors">
-                    {tutor.foto ? (
-                      <img src={tutor.foto.url} alt={tutor.nome} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-600">
-                        <User className="w-8 h-8 sm:w-10 sm:h-10" />
-                      </div>
-                    )}
-                  </div>
+        <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+          <div className="relative flex-1 sm:w-80 group">
+            <div className="absolute inset-0 bg-primary/20 rounded-lg blur opacity-0 group-focus-within:opacity-100 transition-opacity" />
+            <Search className="absolute left-3 top-3.5 w-5 h-5 text-gray-500 z-10" />
+            <input 
+              type="text"
+              placeholder="Buscar tutor..."
+              className="relative z-10 w-full pl-10 pr-4 py-3 bg-black/40 border border-white/10 rounded-lg text-white focus:border-primary/50 focus:outline-none transition-all placeholder-gray-600 backdrop-blur-sm"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(0);
+              }}
+            />
+          </div>
+          
+          <Button 
+            onClick={() => navigate('/tutores/novo')}
+            className="relative overflow-hidden flex items-center justify-center gap-2 px-8 py-3 font-bold bg-primary text-black hover:bg-primary/90 transition-all shadow-[0_0_20px_rgba(0,230,184,0.3)] hover:shadow-[0_0_30px_rgba(0,230,184,0.5)]"
+          >
+            <Plus className="w-5 h-5" />
+            <span>NOVO</span>
+          </Button>
+        </div>
+      </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-bold text-white truncate">{tutor.nome}</h3>
-                        <span className="text-xs text-cyan-400 font-bold bg-cyan-950/30 px-2 py-0.5 rounded border border-cyan-400/20">
-                          #{tutor.id}
-                        </span>
-                    </div>
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+            <span className="text-gray-500 animate-pulse">Carregando dados...</span>
+        </div>
+      ) : (
+        <>
+          {/* Lista de Cards "Glass" */}
+          <div className="flex flex-col gap-4">
+            {tutors.map((tutor) => (
+              <div 
+                key={tutor.id} 
+                className="group relative bg-surface/40 backdrop-blur-md border border-white/5 rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-surface/60 hover:border-primary/30 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] cursor-pointer overflow-hidden"
+                onClick={() => navigate(`/tutores/${tutor.id}`)}
+              >
+                {/* Glow decorativo no fundo ao passar o mouse */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                <div className="relative flex flex-col md:flex-row items-center gap-6 md:gap-8">
                     
-                    <div className="flex flex-col sm:flex-row sm:gap-6 gap-2 text-sm">
-                      <p className="flex items-center gap-2 text-gray-300">
-                        <Phone className="w-4 h-4 text-primary" /> 
-                        {tutor.telefone}
-                      </p>
-                      <p className="flex items-center gap-2 text-gray-300 truncate" title={tutor.endereco}>
-                        <MapPin className="w-4 h-4 text-primary" /> 
-                        {tutor.endereco}
-                      </p>
+                    {/* Foto com Borda Neon */}
+                    <div className="relative flex-shrink-0">
+                        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-white/5 group-hover:border-primary transition-colors shadow-lg">
+                            {tutor.foto ? (
+                                <img src={tutor.foto.url} alt={tutor.nome} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-black/40 text-gray-600">
+                                    <User className="w-10 h-10 opacity-50" />
+                                </div>
+                            )}
+                        </div>
+                        {/* Tag de ID Flutuante */}
+                        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-black/80 border border-white/10 px-3 py-0.5 rounded-full">
+                            <span className="text-[10px] font-bold text-primary tracking-widest">#{tutor.id}</span>
+                        </div>
                     </div>
-                  </div>
 
-                  <button 
-                    onClick={() => navigate(`/tutores/${tutor.id}`)}
-                    className="w-full sm:w-auto px-6 py-2 rounded-lg bg-black/40 border border-gray-700 hover:border-primary hover:text-white text-primary font-bold text-sm uppercase tracking-wide transition-all flex items-center justify-center gap-2"
-                  >
-                    Ver Perfil
-                    <ChevronRightCircle className="w-4 h-4" />
-                  </button>
+                    {/* Informações Centrais */}
+                    <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left min-w-0 w-full">
+                        <h3 className="text-2xl font-bold text-white mb-1 group-hover:text-primary transition-colors">{tutor.nome}</h3>
+                        
+                        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-3 text-sm text-gray-400">
+                            <div className="flex items-center gap-2 bg-black/20 px-3 py-1.5 rounded-lg border border-white/5">
+                                <Phone className="w-4 h-4 text-primary/70" />
+                                <span>{tutor.telefone}</span>
+                            </div>
+                            <div className="flex items-center gap-2 bg-black/20 px-3 py-1.5 rounded-lg border border-white/5 max-w-full">
+                                <MapPin className="w-4 h-4 text-primary/70 flex-shrink-0" />
+                                <span className="truncate max-w-[200px] sm:max-w-xs" title={tutor.endereco}>{tutor.endereco}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Botões de Ação (Aparecem coloridos no Hover) */}
+                    <div className="flex items-center gap-3 mt-4 md:mt-0 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <a 
+                            href={getWhatsAppLink(tutor.telefone)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="p-3 bg-white/5 rounded-xl hover:bg-[#25D366] hover:text-white text-gray-400 transition-all hover:scale-110 shadow-lg"
+                            title="WhatsApp"
+                        >
+                            <MessageCircle className="w-5 h-5" />
+                        </a>
+                        <a 
+                            href={getMapLink(tutor.endereco)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={e => e.stopPropagation()}
+                            className="p-3 bg-white/5 rounded-xl hover:bg-blue-500 hover:text-white text-gray-400 transition-all hover:scale-110 shadow-lg"
+                            title="Google Maps"
+                        >
+                            <ExternalLink className="w-5 h-5" />
+                        </a>
+                        <button className="hidden sm:flex items-center gap-2 px-5 py-3 bg-white/5 rounded-xl hover:bg-primary hover:text-black text-white font-bold text-sm transition-all hover:scale-105 border border-white/5">
+                            ABRIR PERFIL
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+                    </div>
+
                 </div>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-between border-t border-gray-800 pt-6">
-              <span className="text-sm text-gray-400">
-                Página <span className="text-white font-bold">{page + 1}</span> de <span className="text-white font-bold">{totalPages}</span>
-              </span>
-
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  disabled={page === 0}
-                  onClick={() => handlePageChange(page - 1)}
-                  className="flex items-center gap-2 px-4 py-2"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Anterior
-                </Button>
-
-                <Button 
-                  variant="outline" 
-                  disabled={page >= totalPages - 1}
-                  onClick={() => handlePageChange(page + 1)}
-                  className="flex items-center gap-2 px-4 py-2"
-                >
-                  Próxima
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
               </div>
-            </div>
-          </>
-        )}
-      </main>
+            ))}
+          </div>
+
+          {/* Paginação Estilizada */}
+          <div className="flex items-center justify-center gap-4 pt-8">
+              <Button 
+                variant="outline" 
+                disabled={page === 0}
+                onClick={() => handlePageChange(page - 1)}
+                className="w-12 h-12 rounded-full p-0 flex items-center justify-center border-white/10 hover:border-primary hover:text-primary transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+
+              <div className="px-6 py-2 bg-surface/50 rounded-full border border-white/10">
+                <span className="text-sm text-gray-400">
+                    <span className="text-white font-bold">{page + 1}</span> / {totalPages}
+                </span>
+              </div>
+
+              <Button 
+                variant="outline" 
+                disabled={page >= totalPages - 1}
+                onClick={() => handlePageChange(page + 1)}
+                className="w-12 h-12 rounded-full p-0 flex items-center justify-center border-white/10 hover:border-primary hover:text-primary transition-colors"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

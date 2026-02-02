@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { ArrowLeft, Save, Upload, Camera, Trash2, Link as LinkIcon, PawPrint, Pencil, X } from 'lucide-react';
-import { Header } from '../components/Header';
+import { ArrowLeft, Save, Upload, Camera, Trash2, Link as LinkIcon, PawPrint, Pencil, X, Phone, MapPin, MessageCircle } from 'lucide-react';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { ConfirmationModal } from '../components/ConfirmationModal';
@@ -35,6 +34,10 @@ export function TutorDetails() {
   });
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<TutorFormSchema>();
+
+  const getMapLink = (address: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  const getPhoneLink = (phone: string) => `tel:${phone.replace(/\D/g,'')}`;
+  const getWhatsAppLink = (phone: string) => `https://wa.me/${phone.replace(/\D/g,'')}`;
 
   const maskCPF = (value: string | number) => {
     const stringValue = String(value);
@@ -211,12 +214,10 @@ export function TutorDetails() {
     }
   }
 
-  if (!tutor) return <div className="text-center py-20 text-white">Carregando...</div>;
+  if (!tutor) return <div className="text-center py-20 text-white animate-pulse">Carregando perfil...</div>;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
+    <div className="space-y-6">
       <ConfirmationModal 
         isOpen={modalConfig.isOpen}
         onClose={() => setModalConfig(prev => ({ ...prev, isOpen: false }))}
@@ -228,186 +229,225 @@ export function TutorDetails() {
         isLoading={isLoading}
       />
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
-        <button onClick={() => navigate('/tutores')} className="flex items-center gap-2 text-white hover:text-gray-200 mb-6">
-          <ArrowLeft className="w-4 h-4" /> <span>Voltar</span>
+      <div className="flex items-center gap-4 border-b border-white/5 pb-6">
+        <button 
+          onClick={() => navigate('/tutores')} 
+          className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-6 h-6" />
         </button>
+        <div>
+           <h1 className="text-2xl font-bold text-white">Perfil do Tutor</h1>
+           <p className="text-gray-400 text-sm">Gerencie informações e vínculos</p>
+        </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-surface border border-gray-800 rounded-xl p-6 flex flex-col items-center">
-              <div className="w-40 h-40 rounded-full bg-black/50 overflow-hidden mb-4 relative group border-4 border-gray-800">
-                {tutor.foto ? (
-                  <img src={tutor.foto.url} alt={tutor.nome} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-600"><Camera className="w-10 h-10" /></div>
-                )}
-                <label className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all">
-                  <Upload className="w-6 h-6 text-white" />
-                  <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} />
-                </label>
-              </div>
-              <h2 className="text-xl font-bold text-white text-center">{tutor.nome}</h2>
-              <p className="text-gray-400 text-sm mt-1 mb-2">{tutor.email}</p>
-              
-              <p className="text-xs text-cyan-400 font-bold bg-cyan-950/30 px-3 py-1 rounded-full border border-cyan-400/20">
-                ID: #{tutor.id}
-              </p>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div className="lg:col-span-4 space-y-6">
+          <div className="bg-surface/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 flex flex-col items-center shadow-lg">
+            
+            <div className="w-48 h-48 rounded-2xl bg-black/40 overflow-hidden mb-6 relative group border-2 border-white/5 shadow-2xl">
+              {tutor.foto ? (
+                <img src={tutor.foto.url} alt={tutor.nome} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-600"><Camera className="w-12 h-12 opacity-50" /></div>
+              )}
+              <label className="absolute inset-0 bg-black/60 flex flex-col gap-2 items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all backdrop-blur-[2px]">
+                <Upload className="w-8 h-8 text-primary" />
+                <span className="text-xs font-bold text-white uppercase tracking-wide">Alterar Foto</span>
+                <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} />
+              </label>
             </div>
 
-            <div className="bg-surface border border-gray-800 rounded-xl p-6">
-              <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                <LinkIcon className="w-4 h-4 text-primary" /> Vincular Novo Pet
-              </h3>
-              <div className="flex gap-2">
-                <input 
-                  type="number" 
-                  placeholder="ID do Pet" 
-                  className="w-full bg-black/20 border border-gray-700 rounded px-3 text-white focus:border-primary outline-none"
-                  value={petIdToLink}
-                  onChange={e => setPetIdToLink(e.target.value)}
-                />
-                <Button onClick={handleLinkPet} disabled={!petIdToLink || isLoading} className="whitespace-nowrap">
-                  Vincular
-                </Button>
-              </div>
-              <p className="text-xs text-white mt-2">
-                Digite o ID de um pet existente para adicioná-lo a este tutor.
-              </p>
+            <h2 className="text-2xl font-bold text-white text-center mb-1">{tutor.nome}</h2>
+            <p className="text-gray-400 text-sm mb-4">{tutor.email}</p>
+            
+            <div className="flex items-center gap-2 mb-6">
+                <span className="text-xs text-primary font-bold bg-primary/10 px-3 py-1 rounded-full border border-primary/20 tracking-wider">
+                  ID #{tutor.id}
+                </span>
+            </div>
+
+            <div className="w-full grid grid-cols-3 gap-3 pt-6 border-t border-white/5">
+                <a href={getWhatsAppLink(tutor.telefone)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-[#25D366]/20 hover:text-[#25D366] text-gray-400 transition-all group">
+                    <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-bold uppercase">Whats</span>
+                </a>
+                <a href={getPhoneLink(tutor.telefone)} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-primary/20 hover:text-primary text-gray-400 transition-all group">
+                    <Phone className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-bold uppercase">Ligar</span>
+                </a>
+                <a href={getMapLink(tutor.endereco)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-blue-500/20 hover:text-blue-500 text-gray-400 transition-all group">
+                    <MapPin className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-bold uppercase">Mapa</span>
+                </a>
             </div>
           </div>
 
-          <div className="lg:col-span-2 space-y-8">
-            
-            <div className="bg-surface border border-gray-800 rounded-xl p-8 relative">
-              
-              <div className="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
-                <h2 className="text-xl font-bold text-white">Editar Informações</h2>
-                <div className="flex gap-2">
-                  {!isEditing ? (
-                    <>
-                      <button 
-                        onClick={handleDeleteTutorRequest}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                        title="Excluir Tutor"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                      <button 
-                        onClick={() => setIsEditing(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg font-bold text-sm transition-all"
-                      >
-                        <Pencil className="w-4 h-4" /> EDITAR
-                      </button>
-                    </>
-                  ) : (
-                    <span className="text-xs bg-primary/20 text-primary px-3 py-1 rounded-full font-bold animate-pulse">
-                      Editando...
-                    </span>
-                  )}
-                </div>
-              </div>
-              
-              <form onSubmit={handleSubmit(handleUpdate)} className="space-y-4">
-                <Input 
-                  label="Nome" 
-                  maxLength={80} 
-                  {...register('nome', { required: true })} 
-                  error={errors.nome?.message} 
-                  disabled={!isEditing}
-                />
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <Input 
-                    label="Telefone" 
-                    maxLength={15}
-                    {...register('telefone', { 
-                       required: true,
-                       onChange: (e) => setValue('telefone', maskPhone(e.target.value))
-                    })} 
-                    error={errors.telefone?.message} 
-                    disabled={!isEditing}
-                  />
-                  <Input 
-                    label="CPF" 
-                    maxLength={14}
-                    {...register('cpf', { 
-                       required: true,
-                       onChange: (e) => setValue('cpf', maskCPF(e.target.value))
-                    })} 
-                    error={errors.cpf?.message} 
-                    disabled={!isEditing}
-                  />
-                </div>
-
-                <Input 
-                  label="Endereço" 
-                  maxLength={150}
-                  {...register('endereco')} 
-                  error={errors.endereco?.message} 
-                  disabled={!isEditing}
-                />
-                
-                {isEditing && (
-                  <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-800 mt-6 animate-in fade-in slide-in-from-bottom-2">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={handleCancelEdit} 
-                      className="gap-2 border-gray-600 text-gray-300 hover:border-red-500 hover:text-red-500 hover:bg-red-500/10 transition-all duration-300"
-                    >
-                      <X className="w-4 h-4" /> CANCELAR
-                    </Button>
-
-                    <Button type="submit" isLoading={isLoading} className="gap-2 min-w-[140px]">
-                      <Save className="w-4 h-4" /> SALVAR
-                    </Button>
-                  </div>
-                )}
-              </form>
+          <div className="bg-surface/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            <h3 className="text-white font-bold mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
+              <LinkIcon className="w-4 h-4 text-primary" /> Vincular Novo Pet
+            </h3>
+            <div className="flex gap-2">
+              <input 
+                type="number" 
+                placeholder="ID do Pet" 
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary/50 outline-none text-sm"
+                value={petIdToLink}
+                onChange={e => setPetIdToLink(e.target.value)}
+              />
+              <Button onClick={handleLinkPet} disabled={!petIdToLink || isLoading} className="whitespace-nowrap px-4 py-2">
+                Vincular
+              </Button>
             </div>
-
-            <div>
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <PawPrint className="w-5 h-5 text-primary" /> Pets da Família
-              </h2>
-              
-              {!tutor.pets || tutor.pets.length === 0 ? (
-                <div className="bg-surface border border-dashed border-gray-800 rounded-xl p-8 text-center text-white">
-                  Este tutor ainda não tem pets vinculados.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {tutor.pets.map((pet) => (
-                    <div key={pet.id} className="bg-surface border border-gray-800 rounded-lg p-4 flex items-center justify-between group hover:border-primary/30 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded bg-black/50 overflow-hidden">
-                           {pet.foto ? <img src={pet.foto.url} className="w-full h-full object-cover"/> : <PawPrint className="w-6 h-6 m-3 text-gray-700"/>}
-                        </div>
-                        <div>
-                          <p className="text-white font-bold">{pet.nome}</p>
-                          <p className="text-xs text-primary uppercase">{pet.raca}</p>
-                          <p className="text-xs text-cyan-400 font-bold">ID: {pet.id}</p>
-                        </div>
-                      </div>
-                      
-                      <button 
-                        onClick={() => handleUnlinkPetRequest(pet.id)}
-                        className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-colors"
-                        title="Desvincular Pet"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
+            <p className="text-xs text-gray-500 mt-3 leading-relaxed">
+              Digite o número de identificação (ID) de um pet já cadastrado no sistema para adicioná-lo à família deste tutor.
+            </p>
           </div>
         </div>
-      </main>
+
+        <div className="lg:col-span-8 space-y-8">
+          
+          <div className="bg-surface/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8 relative">
+            
+            <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/5">
+              <div>
+                  <h2 className="text-xl font-bold text-white">Dados Pessoais</h2>
+                  <p className="text-xs text-gray-500 mt-1">Informações cadastrais e de contato</p>
+              </div>
+              
+              <div className="flex gap-3">
+                {!isEditing ? (
+                  <>
+                    <button 
+                      onClick={handleDeleteTutorRequest}
+                      className="p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all border border-transparent hover:border-red-500/20"
+                      title="Excluir Tutor"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                    <button 
+                      onClick={() => setIsEditing(true)}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-primary/10 hover:bg-primary hover:text-black text-primary border border-primary/20 hover:border-primary rounded-lg font-bold text-xs uppercase tracking-wide transition-all"
+                    >
+                      <Pencil className="w-4 h-4" /> Editar Dados
+                    </button>
+                  </>
+                ) : (
+                  <span className="flex items-center gap-2 text-xs bg-yellow-500/10 text-yellow-500 px-3 py-1 rounded-full font-bold border border-yellow-500/20 animate-pulse">
+                    <Pencil className="w-3 h-3" /> Modo Edição Ativo
+                  </span>
+                )}
+              </div>
+            </div>
+            
+            <form onSubmit={handleSubmit(handleUpdate)} className="space-y-5">
+              <Input 
+                label="Nome Completo" 
+                maxLength={80} 
+                {...register('nome', { required: true })} 
+                error={errors.nome?.message} 
+                disabled={!isEditing}
+              />
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <Input 
+                  label="Telefone (Celular)" 
+                  maxLength={15}
+                  {...register('telefone', { 
+                     required: true,
+                     onChange: (e) => setValue('telefone', maskPhone(e.target.value))
+                  })} 
+                  error={errors.telefone?.message} 
+                  disabled={!isEditing}
+                />
+                <Input 
+                  label="CPF" 
+                  maxLength={14}
+                  {...register('cpf', { 
+                     required: true,
+                     onChange: (e) => setValue('cpf', maskCPF(e.target.value))
+                  })} 
+                  error={errors.cpf?.message} 
+                  disabled={!isEditing}
+                />
+              </div>
+
+              <Input 
+                label="Endereço Completo" 
+                maxLength={150}
+                {...register('endereco')} 
+                error={errors.endereco?.message} 
+                disabled={!isEditing}
+              />
+              
+              {isEditing && (
+                <div className="flex items-center justify-end gap-3 pt-6 border-t border-white/5 mt-8 animate-in fade-in slide-in-from-bottom-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleCancelEdit} 
+                    className="gap-2 border-white/10 text-gray-400 hover:text-white hover:bg-white/5"
+                  >
+                    <X className="w-4 h-4" /> CANCELAR
+                  </Button>
+
+                  <Button type="submit" isLoading={isLoading} className="gap-2 min-w-[140px] shadow-lg shadow-primary/20">
+                    <Save className="w-4 h-4" /> SALVAR ALTERAÇÕES
+                  </Button>
+                </div>
+              )}
+            </form>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                  <PawPrint className="w-5 h-5 text-primary" /> 
+              </div>
+              Pets da Família
+            </h2>
+            
+            {!tutor.pets || tutor.pets.length === 0 ? (
+              <div className="bg-surface/30 border border-dashed border-white/10 rounded-xl p-10 text-center flex flex-col items-center gap-3">
+                <PawPrint className="w-12 h-12 text-gray-700" />
+                <p className="text-gray-400 font-medium">Este tutor ainda não tem pets vinculados.</p>
+                <p className="text-xs text-gray-600">Use o painel à esquerda para adicionar um pet existente.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {tutor.pets.map((pet) => (
+                  <div key={pet.id} className="bg-surface/50 border border-white/10 rounded-xl p-4 flex items-center justify-between group hover:border-primary/30 hover:bg-surface/80 transition-all cursor-pointer" onClick={() => navigate(`/pets/${pet.id}`)}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-lg bg-black/40 overflow-hidden border border-white/5 group-hover:border-primary/50 transition-colors">
+                         {pet.foto ? <img src={pet.foto.url} className="w-full h-full object-cover"/> : <PawPrint className="w-6 h-6 m-4 text-gray-700"/>}
+                      </div>
+                      <div>
+                        <p className="text-white font-bold group-hover:text-primary transition-colors">{pet.nome}</p>
+                        <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">{pet.raca}</p>
+                        <span className="text-[10px] bg-black/40 text-gray-300 px-2 py-0.5 rounded border border-white/5">ID: {pet.id}</span>
+                      </div>
+                    </div>
+                    
+                    <button 
+                      onClick={(e) => {
+                          e.stopPropagation();
+                          handleUnlinkPetRequest(pet.id);
+                      }}
+                      className="p-2 text-gray-600 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                      title="Desvincular Pet"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }
