@@ -82,79 +82,109 @@ export function Pets() {
               Nenhum pet encontrado.
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-              {pets.map((pet) => (
-                <div 
-                  key={pet.id} 
-                  className="bg-surface rounded-xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all group flex flex-col cursor-pointer shadow-lg hover:shadow-xl hover:shadow-primary/5"
-                  onClick={() => navigate(`/pets/${pet.id}`)}
+            <div className="flex items-center gap-4">
+                
+                <button 
+                    disabled={page === 0}
+                    onClick={() => handlePageChange(page - 1)}
+                    className="hidden lg:flex items-center justify-center w-12 h-12 rounded-full border border-white/10 bg-surface/50 text-gray-400 hover:text-primary hover:border-primary hover:bg-surface transition-all disabled:opacity-0 disabled:cursor-not-allowed flex-shrink-0"
                 >
-                  <div className="h-48 w-full bg-black/50 relative overflow-hidden">
-                    {pet.foto ? (
-                      <img 
-                        src={pet.foto.url} 
-                        alt={pet.nome} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-600 flex-col gap-2">
-                        <PawPrint className="w-10 h-10 opacity-20" />
-                        <span className="text-xs uppercase tracking-widest opacity-50">Sem Foto</span>
+                    <ChevronLeft className="w-6 h-6" />
+                </button>
+
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                  {pets.map((pet) => (
+                    <div 
+                      key={pet.id} 
+                      className="bg-surface rounded-xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all group flex flex-col cursor-pointer shadow-lg hover:shadow-xl hover:shadow-primary/5"
+                      onClick={() => navigate(`/pets/${pet.id}`)}
+                    >
+                      <div className="h-40 w-full bg-black/50 relative overflow-hidden">
+                        {pet.foto ? (
+                          <img 
+                            src={pet.foto.url} 
+                            alt={pet.nome} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-600 flex-col gap-2">
+                            <PawPrint className="w-10 h-10 opacity-20" />
+                            <span className="text-xs uppercase tracking-widest opacity-50">Sem Foto</span>
+                          </div>
+                        )}
+                        
+                        <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10">
+                          <span className="text-xs font-bold text-white">{pet.idade} anos</span>
+                        </div>
                       </div>
-                    )}
-                    
-                    <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10">
-                      <span className="text-xs font-bold text-white">{pet.idade} anos</span>
-                    </div>
-                  </div>
 
-                  <div className="p-5 flex-1 flex flex-col">
-                    <h3 className="text-xl font-bold text-white mb-1 truncate" title={pet.nome}>{pet.nome}</h3>
-                    <p className="text-primary text-sm font-medium mb-4 uppercase tracking-wide truncate">{pet.raca}</p>
-                    
-                    <span className="text-xs text-cyan-400 font-bold">ID: #{pet.id}</span>
+                      <div className="p-4 flex-1 flex flex-col">
+                        <h3 className="text-lg font-bold text-white mb-1 truncate" title={pet.nome}>{pet.nome}</h3>
+                        <p className="text-primary text-xs font-medium mb-3 uppercase tracking-wide truncate">{pet.raca}</p>
+                        
+                        <span className="text-[10px] text-cyan-400 font-bold mb-2 block">ID: #{pet.id}</span>
 
-                    <div className="mt-auto border-t border-gray-800 pt-4 flex justify-between items-center">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/pets/${pet.id}`);
-                        }}
-                        className="text-sm text-primary hover:text-white font-bold uppercase tracking-wide transition-colors flex items-center gap-2"
-                      >
-                        Ver Detalhes <ChevronRight className="w-4 h-4" />
-                      </button>
+                        <div className="mt-auto border-t border-gray-800 pt-3 flex justify-between items-center">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/pets/${pet.id}`);
+                            }}
+                            className="text-xs text-primary hover:text-white font-bold uppercase tracking-wide transition-colors flex items-center gap-2"
+                          >
+                            Ver Detalhes <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+
+                <button 
+                    disabled={page >= totalPages - 1}
+                    onClick={() => handlePageChange(page + 1)}
+                    className="hidden lg:flex items-center justify-center w-12 h-12 rounded-full border border-white/10 bg-surface/50 text-gray-400 hover:text-primary hover:border-primary hover:bg-surface transition-all disabled:opacity-0 disabled:cursor-not-allowed flex-shrink-0"
+                >
+                    <ChevronRight className="w-6 h-6" />
+                </button>
+
             </div>
           )}
 
-          <div className="flex items-center justify-between border-t border-gray-800 pt-6 mt-8">
-            <Button 
-              variant="outline" 
-              onClick={() => handlePageChange(page - 1)}
-              className="flex items-center gap-2 px-4 py-2"
-              disabled={page === 0}
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Anterior
-            </Button>
+          <div className="flex items-center justify-center pt-6 mt-8 lg:hidden">
+            <div className="flex items-center gap-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => handlePageChange(page - 1)}
+                  className="flex items-center gap-2 px-4 py-2"
+                  disabled={page === 0}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Anterior
+                </Button>
 
-            <span className="text-sm text-gray-400">
-              Página <span className="text-white font-bold">{page + 1}</span> de <span className="text-white font-bold">{totalPages}</span>
-            </span>
+                <span className="text-sm text-gray-400">
+                  <span className="text-white font-bold">{page + 1}</span> / <span className="text-white font-bold">{totalPages}</span>
+                </span>
 
-            <Button 
-              variant="outline" 
-              onClick={() => handlePageChange(page + 1)}
-              className="flex items-center gap-2 px-4 py-2"
-              disabled={page >= totalPages - 1}
-            >
-              Próxima
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => handlePageChange(page + 1)}
+                  className="flex items-center gap-2 px-4 py-2"
+                  disabled={page >= totalPages - 1}
+                >
+                  Próxima
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+            </div>
+          </div>
+
+          <div className="hidden lg:flex items-center justify-center pt-4">
+             <div className="px-6 py-2 bg-black/40 rounded-lg border border-white/5 items-center min-w-[100px] justify-center">
+                <span className="text-sm font-medium text-gray-400">
+                    <span className="text-white font-bold">{page + 1}</span> <span className="mx-1 text-gray-600">/</span> {totalPages}
+                </span>
+             </div>
           </div>
         </>
       )}
