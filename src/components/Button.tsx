@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
-  variant?: 'primary' | 'danger' | 'outline';
+  variant?: 'primary' | 'danger' | 'outline' | 'ghost';
 }
 
 export function Button({ 
@@ -17,7 +17,8 @@ export function Button({
   const variants = {
     primary: "bg-primary text-black font-bold hover:bg-primary-hover focus:ring-primary",
     danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
-    outline: "border border-gray-700 text-text-main hover:bg-surface focus:ring-gray-500"
+    outline: "border border-gray-700 text-text-main hover:bg-surface focus:ring-gray-500",
+    ghost: "bg-transparent text-gray-400 hover:text-white hover:bg-white/5 focus:ring-gray-500"
   };
 
   return (

@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthState } from '../services/AuthState';
 import { Loader2 } from 'lucide-react';
-import { DashboardLayout } from '../layouts/DashboardLayout'; // Importamos o Layout
+import { DashboardLayout } from '../layouts/DashboardLayout';
 
 const Login = lazy(() => import('../pages/Login').then(m => ({ default: m.Login })));
 const Pets = lazy(() => import('../pages/Pets').then(m => ({ default: m.Pets })));
@@ -14,7 +14,6 @@ const Tutors = lazy(() => import('../pages/Tutors').then(m => ({ default: m.Tuto
 const TutorForm = lazy(() => import('../pages/TutorForm').then(m => ({ default: m.TutorForm })));
 const TutorDetails = lazy(() => import('../pages/TutorDetails').then(m => ({ default: m.TutorDetails })));
 
-// Componente Wrapper que protege a rota E aplica o Layout
 function PrivateRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
   const isAuthorized = isAuthenticated || !!AuthState.getToken();
@@ -23,7 +22,6 @@ function PrivateRoute({ children }: { children: ReactNode }) {
     return <Navigate to="/login" replace />;
   }
 
-  // Aqui está a mágica: O Layout envolve a página automaticamente
   return <DashboardLayout>{children}</DashboardLayout>;
 }
 
