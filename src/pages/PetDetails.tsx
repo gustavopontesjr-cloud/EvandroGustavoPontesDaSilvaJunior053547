@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { ArrowLeft, Save, Upload, Camera, User, Phone, AlertCircle, ChevronRight, Trash2, Pencil, X, MapPin, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Camera, User, AlertCircle, ChevronRight, Trash2, Pencil, X, Copy, Check } from 'lucide-react';
 
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
@@ -15,6 +15,7 @@ export function PetDetails() {
   const navigate = useNavigate();
   const [pet, setPet] = useState<Pet | null>(null);
   const [tutors, setTutors] = useState<Tutor[]>([]);
+  const [copied, setCopied] = useState(false);
   
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -31,10 +32,6 @@ export function PetDetails() {
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<PetRequest>();
   const currentSpecies = watch('especie');
 
-  const getMapLink = (address: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-  const getPhoneLink = (phone: string) => `tel:${phone.replace(/\D/g,'')}`;
-  const getWhatsAppLink = (phone: string) => `https://wa.me/${phone.replace(/\D/g,'')}`;
-
   useEffect(() => {
     if (id) loadPet(Number(id));
   }, [id]);
@@ -49,9 +46,16 @@ export function PetDetails() {
       if (data.especie) setValue('especie', data.especie);
       if (data.tutores) setTutors(data.tutores);
     } catch (error) {
-      console.error('Erro ao carregar pet', error);
+      console.error(error);
       navigate('/pets');
     }
+  }
+
+  function handleCopyId() {
+    if (!pet) return;
+    navigator.clipboard.writeText(String(pet.id));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   async function handleUpdate(data: PetRequest) {
@@ -164,7 +168,7 @@ export function PetDetails() {
         </button>
         <div>
            <h1 className="text-2xl font-bold text-white">Prontuário do Pet</h1>
-           <p className="text-gray-400 text-sm">Gerencie informações clínicas e cadastrais</p>
+           <p className="text-gray-200 text-sm">Gerencie informações clínicas e cadastrais</p>
         </div>
       </div>
 
@@ -184,13 +188,21 @@ export function PetDetails() {
                 <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} />
               </label>
             </div>
+            
             <h2 className="text-2xl font-bold text-white text-center mb-1">{pet.nome}</h2>
-            <p className="text-primary text-sm font-bold uppercase tracking-wider mb-4">
+            <p className="text-primary text-sm font-bold uppercase tracking-wider mb-2">
               {currentSpecies ? `${currentSpecies} • ` : ''}{pet.raca}
             </p>
-            <span className="text-xs text-cyan-400 font-bold bg-cyan-950/30 px-3 py-1 rounded-full border border-cyan-400/20">
-              ID: #{pet.id}
-            </span>
+            
+            <button 
+              onClick={handleCopyId}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-950/30 border border-cyan-400/20 text-cyan-400 hover:bg-cyan-950/50 transition-all cursor-pointer group active:scale-95 mb-4"
+              title="Clique para copiar o ID"
+            >
+              <span className="font-bold text-xs">ID #{pet.id}</span>
+              {copied ? <Check className="w-3 h-3 animate-in zoom-in" /> : <Copy className="w-3 h-3 group-hover:scale-110 transition-transform" />}
+            </button>
+            {copied && <span className="text-[10px] text-cyan-400 -mt-3 mb-2 animate-in fade-in">Copiado!</span>}
           </div>
 
           <div className="bg-surface/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
@@ -202,43 +214,31 @@ export function PetDetails() {
             </div>
             
             {tutors.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {tutors.map((tutor) => (
-                  <div key={tutor.id} className="bg-black/20 rounded-xl p-4 border border-white/5 hover:border-primary/30 transition-all">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center overflow-hidden flex-shrink-0 border border-white/10">
-                         {tutor.foto ? <img src={tutor.foto.url} className="w-full h-full object-cover"/> : <User className="w-5 h-5 text-gray-400"/>}
-                      </div>
-                      <div className="overflow-hidden min-w-0">
-                        <p className="text-white font-bold text-sm truncate" title={tutor.nome}>{tutor.nome}</p>
-                        <p className="text-xs text-gray-400">{tutor.telefone}</p>
-                      </div>
+                  <div 
+                    key={tutor.id} 
+                    onClick={() => navigate(`/tutores/${tutor.id}`)}
+                    className="bg-black/20 rounded-xl p-3 border border-white/5 hover:border-primary/30 hover:bg-white/5 transition-all cursor-pointer group flex items-center gap-4"
+                  >
+                    <div className="w-14 h-14 rounded-lg bg-gray-700 flex items-center justify-center overflow-hidden flex-shrink-0 border border-white/10 group-hover:border-primary/50 transition-colors">
+                        {tutor.foto ? <img src={tutor.foto.url} className="w-full h-full object-cover"/> : <User className="w-6 h-6 text-gray-400"/>}
                     </div>
                     
-                    <div className="grid grid-cols-4 gap-2">
-                        <a href={getWhatsAppLink(tutor.telefone)} target="_blank" rel="noopener noreferrer" className="col-span-1 p-2 bg-white/5 rounded-lg flex items-center justify-center text-gray-400 hover:text-[#25D366] hover:bg-[#25D366]/10 transition-colors" title="WhatsApp">
-                            <MessageCircle className="w-4 h-4" />
-                        </a>
-                        <a href={getPhoneLink(tutor.telefone)} className="col-span-1 p-2 bg-white/5 rounded-lg flex items-center justify-center text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors" title="Ligar">
-                            <Phone className="w-4 h-4" />
-                        </a>
-                        <a href={getMapLink(tutor.endereco)} target="_blank" rel="noopener noreferrer" className="col-span-1 p-2 bg-white/5 rounded-lg flex items-center justify-center text-gray-400 hover:text-blue-400 hover:bg-blue-400/10 transition-colors" title="Endereço">
-                            <MapPin className="w-4 h-4" />
-                        </a>
-                        <button 
-                          onClick={() => navigate(`/tutores/${tutor.id}`)}
-                          className="col-span-1 p-2 bg-white/5 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
-                          title="Ver Perfil"
-                        >
-                          <ChevronRight className="w-4 h-4" />
-                        </button>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-bold text-base truncate group-hover:text-primary transition-colors">{tutor.nome}</p>
+                      <p className="text-xs text-gray-500 group-hover:text-gray-400 transition-colors">Ver perfil completo</p>
+                    </div>
+
+                    <div className="p-2 rounded-lg text-gray-500 group-hover:text-white group-hover:bg-primary/10 transition-colors">
+                      <ChevronRight className="w-5 h-5" />
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="text-center py-8 bg-black/20 rounded-xl border border-dashed border-white/10">
-                <p className="text-gray-400 text-sm font-medium">Sem tutor vinculado</p>
+                <p className="text-gray-300 text-sm font-medium">Sem tutor vinculado</p>
                 <p className="text-xs text-gray-500 mt-1">Vincule através da tela de Tutores</p>
               </div>
             )}
@@ -250,7 +250,7 @@ export function PetDetails() {
             <div className="flex justify-between items-center mb-8 border-b border-white/5 pb-4">
               <div>
                  <h2 className="text-xl font-bold text-white">Dados Cadastrais</h2>
-                 <p className="text-xs text-gray-500 mt-1">Informações detalhadas do animal</p>
+                 <p className="text-gray-300 text-sm mt-1">Informações detalhadas do animal</p>
               </div>
               <div className="flex gap-2">
                 {!isEditing ? (
@@ -285,7 +285,7 @@ export function PetDetails() {
                   {isEditing && (
                     <div className="flex items-start gap-2 mt-2 opacity-60 bg-yellow-500/5 p-2 rounded">
                       <AlertCircle className="w-3 h-3 text-yellow-500 mt-0.5 flex-shrink-0" />
-                      <p className="text-[10px] text-gray-400 leading-tight">Campo informativo (não persistido na API atual).</p>
+                      <p className="text-[10px] text-gray-300 leading-tight">Campo informativo (não persistido na API atual).</p>
                     </div>
                   )}
                 </div>
