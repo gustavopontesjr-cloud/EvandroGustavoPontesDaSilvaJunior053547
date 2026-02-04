@@ -35,7 +35,7 @@ export function TutorDetails() {
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<TutorFormSchema>();
 
-  const getMapLink = (address: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  const getMapLink = (address: string) => `http://maps.google.com/?q=${encodeURIComponent(address)}`;
   const getPhoneLink = (phone: string) => `tel:${phone.replace(/\D/g,'')}`;
   const getWhatsAppLink = (phone: string) => `https://wa.me/${phone.replace(/\D/g,'')}`;
 
@@ -208,6 +208,7 @@ export function TutorDetails() {
     setIsEditing(false);
     if (tutor) {
       setValue('nome', tutor.nome);
+      setValue('email', tutor.email);
       setValue('telefone', maskPhone(tutor.telefone));
       setValue('cpf', maskCPF(tutor.cpf));
       setValue('endereco', tutor.endereco);
@@ -238,7 +239,7 @@ export function TutorDetails() {
         </button>
         <div>
            <h1 className="text-2xl font-bold text-white">Perfil do Tutor</h1>
-           <p className="text-gray-400 text-sm">Gerencie informações e vínculos</p>
+           <p className="text-gray-200 text-base">Gerencie informações e vínculos</p>
         </div>
       </div>
 
@@ -261,9 +262,8 @@ export function TutorDetails() {
             </div>
 
             <h2 className="text-2xl font-bold text-white text-center mb-1">{tutor.nome}</h2>
-            <p className="text-gray-400 text-sm mb-4">{tutor.email}</p>
             
-            <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center gap-2 mb-6 mt-2">
                 <span className="text-xs text-primary font-bold bg-primary/10 px-3 py-1 rounded-full border border-primary/20 tracking-wider">
                   ID #{tutor.id}
                 </span>
@@ -291,7 +291,9 @@ export function TutorDetails() {
             </h3>
             <div className="flex gap-2">
               <input 
-                type="number" 
+                type="text" 
+                inputMode="numeric"
+                pattern="[0-9]*"
                 placeholder="ID do Pet" 
                 className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary/50 outline-none text-sm"
                 value={petIdToLink}
@@ -301,7 +303,7 @@ export function TutorDetails() {
                 Vincular
               </Button>
             </div>
-            <p className="text-xs text-gray-500 mt-3 leading-relaxed">
+            <p className="text-sm text-gray-300 mt-3 leading-relaxed">
               Digite o número de identificação (ID) de um pet já cadastrado no sistema para adicioná-lo à família deste tutor.
             </p>
           </div>
@@ -314,7 +316,7 @@ export function TutorDetails() {
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-white/5">
               <div>
                   <h2 className="text-xl font-bold text-white">Dados Pessoais</h2>
-                  <p className="text-xs text-gray-500 mt-1">Informações cadastrais e de contato</p>
+                  <p className="text-sm text-gray-200 mt-1">Informações cadastrais e de contato</p>
               </div>
               
               <div className="flex gap-3">
@@ -356,8 +358,8 @@ export function TutorDetails() {
                   label="Telefone (Celular)" 
                   maxLength={15}
                   {...register('telefone', { 
-                     required: true,
-                     onChange: (e) => setValue('telefone', maskPhone(e.target.value))
+                      required: true,
+                      onChange: (e) => setValue('telefone', maskPhone(e.target.value))
                   })} 
                   error={errors.telefone?.message} 
                   disabled={!isEditing}
@@ -366,13 +368,22 @@ export function TutorDetails() {
                   label="CPF" 
                   maxLength={14}
                   {...register('cpf', { 
-                     required: true,
-                     onChange: (e) => setValue('cpf', maskCPF(e.target.value))
+                      required: true,
+                      onChange: (e) => setValue('cpf', maskCPF(e.target.value))
                   })} 
                   error={errors.cpf?.message} 
                   disabled={!isEditing}
                 />
               </div>
+
+              <Input 
+                  label="E-mail" 
+                  type="email"
+                  maxLength={100}
+                  {...register('email', { required: true })} 
+                  error={errors.email?.message} 
+                  disabled={!isEditing}
+              />
 
               <Input 
                 label="Endereço Completo" 
@@ -412,8 +423,8 @@ export function TutorDetails() {
             {!tutor.pets || tutor.pets.length === 0 ? (
               <div className="bg-surface/30 border border-dashed border-white/10 rounded-xl p-10 text-center flex flex-col items-center gap-3">
                 <PawPrint className="w-12 h-12 text-gray-700" />
-                <p className="text-gray-400 font-medium">Este tutor ainda não tem pets vinculados.</p>
-                <p className="text-xs text-gray-600">Use o painel à esquerda para adicionar um pet existente.</p>
+                <p className="text-gray-200 font-medium">Este tutor ainda não tem pets vinculados.</p>
+                <p className="text-sm text-gray-400">Use o painel à esquerda para adicionar um pet existente.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -421,7 +432,7 @@ export function TutorDetails() {
                   <div key={pet.id} className="bg-surface/50 border border-white/10 rounded-xl p-4 flex items-center justify-between group hover:border-primary/30 hover:bg-surface/80 transition-all cursor-pointer" onClick={() => navigate(`/pets/${pet.id}`)}>
                     <div className="flex items-center gap-4">
                       <div className="w-14 h-14 rounded-lg bg-black/40 overflow-hidden border border-white/5 group-hover:border-primary/50 transition-colors">
-                         {pet.foto ? <img src={pet.foto.url} className="w-full h-full object-cover"/> : <PawPrint className="w-6 h-6 m-4 text-gray-700"/>}
+                          {pet.foto ? <img src={pet.foto.url} className="w-full h-full object-cover"/> : <PawPrint className="w-6 h-6 m-4 text-gray-700"/>}
                       </div>
                       <div>
                         <p className="text-white font-bold group-hover:text-primary transition-colors">{pet.nome}</p>
