@@ -59,17 +59,23 @@ src/
 - Node.js 18 ou superior (para execução local)
 - Docker (para execução em container)
 
-### Opção 1: Execução via Docker
+### Passo 1: Obtendo o Projeto (Download)
 
-1. Abra o terminal (Prompt de Comando, PowerShell ou Terminal) na pasta raiz do projeto.
+1. Nesta página do repositório, localize e clique no botão verde **<> Code**.
+2. No menu que abrir, clique na opção **Download ZIP**.
+3. Após baixar o arquivo, extraia (descompacte) o conteúdo em seu computador.
+4. Abra a pasta extraída (o nome geralmente será `evandrogustavopontesdasilvajunior053547-main`).
+5. **Importante:** Abra o seu terminal (Prompt de Comando ou PowerShell) **dentro desta pasta raiz** para executar os comandos das opções abaixo.
 
-2. Construa a imagem da aplicação executando o comando abaixo. Aguarde o processo de download e compilação terminar:
+### Opção 1: Execução via Docker (Recomendada)
+
+1. No terminal aberto na pasta do projeto, construa a imagem da aplicação executando o comando abaixo. Aguarde o processo terminar:
    Comando: docker build -t sigpet-front .
 
-3. Inicie o container executando o comando abaixo. Isso subirá o servidor na porta 8080:
+2. Inicie o container executando o comando abaixo. Isso subirá o servidor na porta 8080:
    Comando: docker run -p 8080:80 sigpet-front
 
-4. Após iniciar, acesse a aplicação no seu navegador através do endereço: http://localhost:8080
+3. Após iniciar, acesse a aplicação no seu navegador através do endereço: http://localhost:8080
 
    **Credenciais para Teste:**
    * **Usuário:** admin
@@ -79,13 +85,11 @@ Nota: O endpoint de Health Check (Liveness Probe) exigido no edital estará disp
 
 ### Opção 2: Execução Local
 
-1. Abra o terminal (Prompt de Comando, PowerShell ou Terminal) na pasta raiz do projeto.
+1. No terminal aberto na pasta do projeto, instale as dependências usando o comando: npm install
 
-2. Instale as dependências do projeto usando o comando: npm install
+2. Após terminar a instalação, inicie o servidor de desenvolvimento usando o comando: npm run dev
 
-3. Após terminar a instalação, inicie o servidor de desenvolvimento usando o comando: npm run dev
-
-4. Acesse a aplicação através do link exibido no terminal. Copie e cole o link em seu navegador ou segure CTRL e clique nele.
+3. Acesse a aplicação através do link exibido no terminal. Copie e cole o link em seu navegador ou segure CTRL e clique nele.
 
    **Credenciais para Teste:**
    * **Usuário:** admin
