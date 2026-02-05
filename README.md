@@ -4,7 +4,7 @@
 > **Vaga:** Engenheiro da Computação (Perfil Sênior)
 > **Processo Seletivo:** Governo de Mato Grosso - Edital 001/2026
 
-Aplicação SPA (Single Page Application) desenvolvida para o gerenciamento de pets e tutores...
+Aplicação SPA (Single Page Application) desenvolvida para o gerenciamento de pets e tutores, focada em performance, arquitetura limpa e experiência do usuário.
 
 ---
 
@@ -71,6 +71,10 @@ src/
 
 4. Após iniciar, acesse a aplicação no seu navegador através do endereço: http://localhost:8080
 
+   **Credenciais para Teste:**
+   * **Usuário:** admin
+   * **Senha:** admin
+
 Nota: O endpoint de Health Check (Liveness Probe) exigido no edital estará disponível em: http://localhost:8080/health.json
 
 ### Opção 2: Execução Local
@@ -82,6 +86,10 @@ Nota: O endpoint de Health Check (Liveness Probe) exigido no edital estará disp
 3. Após terminar a instalação, inicie o servidor de desenvolvimento usando o comando: npm run dev
 
 4. Acesse a aplicação através do link exibido no terminal. Copie e cole o link em seu navegador ou segure CTRL e clique nele.
+
+   **Credenciais para Teste:**
+   * **Usuário:** admin
+   * **Senha:** admin
 
 ---
 
