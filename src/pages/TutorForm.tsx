@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, UserPlus, Camera, Upload, User } from 'lucide-react';
+import { ArrowLeft, Save, UserPlus, Upload, User } from 'lucide-react';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { tutorService } from '../services/tutorService';
