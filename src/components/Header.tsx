@@ -22,12 +22,17 @@ export function Header() {
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         
         <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-tr from-primary to-emerald-600 p-2 rounded-lg shadow-lg shadow-primary/20">
-            <PawPrint className="w-5 h-5 text-black fill-current" />
+          <div className="bg-gradient-to-tr from-primary to-emerald-400 p-2 rounded-lg shadow-lg shadow-primary/20">
+            <PawPrint className="w-5 h-5 text-black fill-black/20" />
           </div>
-          <span className="font-bold text-lg text-white tracking-wide hidden sm:block">
-            Pet<span className="text-primary">Manager</span>
-          </span>
+          <div className="hidden sm:flex flex-col">
+             <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent leading-tight">
+               SigPet MT
+             </span>
+             <span className="text-[10px] text-gray-500 font-medium tracking-wider uppercase">
+               Governo de Mato Grosso
+             </span>
+          </div>
         </div>
 
         <nav className="flex items-center gap-2 bg-surface/50 p-1 rounded-full border border-white/5">
