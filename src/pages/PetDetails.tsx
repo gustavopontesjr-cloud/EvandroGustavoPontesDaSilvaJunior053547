@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { ArrowLeft, Save, Upload, Camera, User, AlertCircle, ChevronRight, Trash2, Pencil, X, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Camera, User, AlertCircle, ChevronRight, Trash2, Pencil, X, Copy, Check, Maximize2 } from 'lucide-react';
 
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
@@ -19,6 +19,10 @@ export function PetDetails() {
   
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const [modalConfig, setModalConfig] = useState({
     isOpen: false,
@@ -35,6 +39,12 @@ export function PetDetails() {
   useEffect(() => {
     if (id) loadPet(Number(id));
   }, [id]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   async function loadPet(petId: number) {
     try {
@@ -62,23 +72,30 @@ export function PetDetails() {
     if (!id) return;
     try {
       setIsLoading(true);
+      
       await petService.update(Number(id), data);
+
+      if (selectedFile) {
+        await petService.uploadPhoto(Number(id), selectedFile);
+      }
       
       setModalConfig({
         isOpen: true,
         title: 'Sucesso!',
-        description: 'Os dados do pet foram atualizados corretamente.',
+        description: 'Os dados do pet foram atualizados.',
         variant: 'success',
         singleButton: true,
         onConfirm: () => {
           setModalConfig(prev => ({ ...prev, isOpen: false }));
           setIsEditing(false);
+          setSelectedFile(null);
+          setPreviewUrl(null);
           loadPet(Number(id));
         }
       });
 
     } catch (error) {
-      alert('Erro ao atualizar.');
+      alert('Erro ao atualizar dados.');
     } finally {
       setIsLoading(false);
     }
@@ -112,6 +129,9 @@ export function PetDetails() {
 
   function handleCancelEdit() {
     setIsEditing(false);
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    
     if (pet) {
       setValue('nome', pet.nome);
       setValue('raca', pet.raca);
@@ -120,30 +140,19 @@ export function PetDetails() {
     }
   }
 
-  async function handlePhotoUpload(event: React.ChangeEvent<HTMLInputElement>) {
-    if (!event.target.files?.length || !id) return;
-    try {
-      setIsLoading(true);
-      await petService.uploadPhoto(Number(id), event.target.files[0]);
-      await loadPet(Number(id));
-      
-      setModalConfig({
-        isOpen: true,
-        title: 'Foto Atualizada',
-        description: 'A nova foto do pet foi salva com sucesso!',
-        variant: 'success',
-        singleButton: true,
-        onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false }))
-      });
-
-    } catch (error) {
-      alert('Falha ao enviar foto.');
-    } finally {
-      setIsLoading(false);
-    }
+  function handlePhotoSelect(event: React.ChangeEvent<HTMLInputElement>) {
+    if (!event.target.files?.length) return;
+    
+    const file = event.target.files[0];
+    setSelectedFile(file);
+    
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
   }
 
   if (!pet) return <div className="text-center py-20 text-white animate-pulse">Carregando dados do pet...</div>;
+
+  const displayImage = previewUrl || pet.foto?.url;
 
   return (
     <div className="space-y-6">
@@ -158,6 +167,28 @@ export function PetDetails() {
         singleButton={modalConfig.singleButton}
         isLoading={isLoading}
       />
+
+      {isZoomOpen && displayImage && (
+        <div 
+          className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setIsZoomOpen(false)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh]">
+            <button 
+              onClick={() => setIsZoomOpen(false)}
+              className="absolute -top-12 right-0 text-white hover:text-primary transition-colors"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <img 
+              src={displayImage} 
+              alt={pet.nome} 
+              className="w-full h-full object-contain rounded-lg shadow-2xl border border-white/10"
+              onClick={(e) => e.stopPropagation()} 
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center gap-4 border-b border-white/5 pb-6">
         <button 
@@ -176,17 +207,33 @@ export function PetDetails() {
         
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-surface/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 flex flex-col items-center shadow-lg">
-            <div className="w-48 h-48 rounded-2xl bg-black/40 overflow-hidden mb-6 relative group border-2 border-white/5 shadow-2xl">
-              {pet.foto ? (
-                <img src={pet.foto.url} alt={pet.nome} className="w-full h-full object-cover" />
+            
+            <div 
+              className={`w-48 h-48 rounded-2xl bg-black/40 overflow-hidden mb-6 relative group border-2 border-white/5 shadow-2xl transition-all ${!isEditing && displayImage ? 'cursor-zoom-in' : ''}`}
+              onClick={() => {
+                if (!isEditing && displayImage) setIsZoomOpen(true);
+              }}
+            >
+              {displayImage ? (
+                <img src={displayImage} alt={pet.nome} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-600"><Camera className="w-12 h-12 opacity-50" /></div>
               )}
-              <label className="absolute inset-0 bg-black/60 flex flex-col gap-2 items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all backdrop-blur-[2px]">
-                <Upload className="w-8 h-8 text-primary" />
-                <span className="text-xs font-bold text-white uppercase tracking-wide">Alterar Foto</span>
-                <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} />
-              </label>
+
+              {isEditing ? (
+                <label className="absolute inset-0 bg-black/60 flex flex-col gap-2 items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all backdrop-blur-[2px]">
+                  <Upload className="w-8 h-8 text-primary" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wide">Alterar Foto</span>
+                  <input type="file" className="hidden" accept="image/*" onChange={handlePhotoSelect} />
+                </label>
+              ) : (
+                displayImage && (
+                  <div className="absolute inset-0 bg-black/40 flex flex-col gap-2 items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[1px]">
+                    <Maximize2 className="w-8 h-8 text-white" />
+                    <span className="text-xs font-bold text-white uppercase tracking-wide">Ampliar</span>
+                  </div>
+                )
+              )}
             </div>
             
             <h2 className="text-2xl font-bold text-white text-center mb-1">{pet.nome}</h2>
@@ -299,7 +346,7 @@ export function PetDetails() {
                     type="button" 
                     variant="outline" 
                     onClick={handleCancelEdit} 
-                    className="gap-2 border-white/10 text-gray-400 hover:text-white hover:bg-white/5"
+                    className="gap-2 border-white/10 text-gray-400 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all"
                   >
                     <X className="w-4 h-4" /> CANCELAR
                   </Button>

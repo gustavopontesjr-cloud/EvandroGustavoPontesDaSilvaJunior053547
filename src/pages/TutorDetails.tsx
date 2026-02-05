@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { ArrowLeft, Save, Upload, Camera, Trash2, Link as LinkIcon, PawPrint, Pencil, X, Phone, MapPin, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Camera, Trash2, Link as LinkIcon, PawPrint, Pencil, X, Phone, MapPin, MessageCircle, Maximize2 } from 'lucide-react';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { ConfirmationModal } from '../components/ConfirmationModal';
@@ -24,6 +24,11 @@ export function TutorDetails() {
   const [petIdToLink, setPetIdToLink] = useState('');
   
   const [isEditing, setIsEditing] = useState(false);
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   const [modalConfig, setModalConfig] = useState({
     isOpen: false,
     title: '',
@@ -37,7 +42,7 @@ export function TutorDetails() {
 
   const getMapLink = (address: string) => `http://maps.google.com/?q=${encodeURIComponent(address)}`;
   const getPhoneLink = (phone: string) => `tel:${phone.replace(/\D/g,'')}`;
-  const getWhatsAppLink = (phone: string) => `https://wa.me/${phone.replace(/\D/g,'')}`;
+  const getWhatsAppLink = (phone: string) => `https://wa.me/55${phone.replace(/\D/g,'')}`;
 
   const maskCPF = (value: string | number) => {
     const stringValue = String(value);
@@ -60,6 +65,12 @@ export function TutorDetails() {
     if (id) loadTutor(Number(id));
   }, [id]);
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
   async function loadTutor(tutorId: number) {
     try {
       const data = await tutorService.getById(tutorId);
@@ -71,7 +82,7 @@ export function TutorDetails() {
       setValue('cpf', maskCPF(data.cpf));
       setValue('endereco', data.endereco);
     } catch (error) {
-      console.error('Erro ao carregar', error);
+      console.error(error);
       navigate('/tutores');
     }
   }
@@ -87,6 +98,10 @@ export function TutorDetails() {
       };
 
       await tutorService.update(Number(id), payload);
+
+      if (selectedFile) {
+        await tutorService.uploadPhoto(Number(id), selectedFile);
+      }
       
       setModalConfig({
         isOpen: true,
@@ -97,6 +112,8 @@ export function TutorDetails() {
         onConfirm: () => {
           setModalConfig(prev => ({ ...prev, isOpen: false }));
           setIsEditing(false);
+          setSelectedFile(null);
+          setPreviewUrl(null);
           loadTutor(Number(id));
         }
       });
@@ -159,26 +176,14 @@ export function TutorDetails() {
     }
   }
 
-  async function handlePhotoUpload(event: React.ChangeEvent<HTMLInputElement>) {
-    if (!event.target.files?.length || !id) return;
-    try {
-      setIsLoading(true);
-      await tutorService.uploadPhoto(Number(id), event.target.files[0]);
-      await loadTutor(Number(id));
-      
-      setModalConfig({
-        isOpen: true,
-        title: 'Foto Atualizada',
-        description: 'A nova foto do tutor foi salva!',
-        variant: 'success',
-        singleButton: true,
-        onConfirm: () => setModalConfig(prev => ({ ...prev, isOpen: false }))
-      });
-    } catch (error) {
-      alert('Falha ao enviar foto.');
-    } finally {
-      setIsLoading(false);
-    }
+  function handlePhotoSelect(event: React.ChangeEvent<HTMLInputElement>) {
+    if (!event.target.files?.length) return;
+    
+    const file = event.target.files[0];
+    setSelectedFile(file);
+    
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
   }
 
   async function handleLinkPet() {
@@ -206,6 +211,9 @@ export function TutorDetails() {
 
   function handleCancelEdit() {
     setIsEditing(false);
+    setSelectedFile(null);
+    setPreviewUrl(null);
+
     if (tutor) {
       setValue('nome', tutor.nome);
       setValue('email', tutor.email);
@@ -216,6 +224,8 @@ export function TutorDetails() {
   }
 
   if (!tutor) return <div className="text-center py-20 text-white animate-pulse">Carregando perfil...</div>;
+
+  const displayImage = previewUrl || tutor.foto?.url;
 
   return (
     <div className="space-y-6">
@@ -229,6 +239,28 @@ export function TutorDetails() {
         singleButton={modalConfig.singleButton}
         isLoading={isLoading}
       />
+
+      {isZoomOpen && displayImage && (
+        <div 
+          className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setIsZoomOpen(false)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh]">
+            <button 
+              onClick={() => setIsZoomOpen(false)}
+              className="absolute -top-12 right-0 text-white hover:text-primary transition-colors"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <img 
+              src={displayImage} 
+              alt={tutor.nome} 
+              className="w-full h-full object-contain rounded-lg shadow-2xl border border-white/10"
+              onClick={(e) => e.stopPropagation()} 
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center gap-4 border-b border-white/5 pb-6">
         <button 
@@ -248,17 +280,32 @@ export function TutorDetails() {
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-surface/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 flex flex-col items-center shadow-lg">
             
-            <div className="w-48 h-48 rounded-2xl bg-black/40 overflow-hidden mb-6 relative group border-2 border-white/5 shadow-2xl">
-              {tutor.foto ? (
-                <img src={tutor.foto.url} alt={tutor.nome} className="w-full h-full object-cover" />
+            <div 
+              className={`w-48 h-48 rounded-2xl bg-black/40 overflow-hidden mb-6 relative group border-2 border-white/5 shadow-2xl transition-all ${!isEditing && displayImage ? 'cursor-zoom-in' : ''}`}
+              onClick={() => {
+                if (!isEditing && displayImage) setIsZoomOpen(true);
+              }}
+            >
+              {displayImage ? (
+                <img src={displayImage} alt={tutor.nome} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-600"><Camera className="w-12 h-12 opacity-50" /></div>
               )}
-              <label className="absolute inset-0 bg-black/60 flex flex-col gap-2 items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all backdrop-blur-[2px]">
-                <Upload className="w-8 h-8 text-primary" />
-                <span className="text-xs font-bold text-white uppercase tracking-wide">Alterar Foto</span>
-                <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} />
-              </label>
+
+              {isEditing ? (
+                <label className="absolute inset-0 bg-black/60 flex flex-col gap-2 items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-all backdrop-blur-[2px]">
+                  <Upload className="w-8 h-8 text-primary" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wide">Alterar Foto</span>
+                  <input type="file" className="hidden" accept="image/*" onChange={handlePhotoSelect} />
+                </label>
+              ) : (
+                displayImage && (
+                  <div className="absolute inset-0 bg-black/40 flex flex-col gap-2 items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[1px]">
+                    <Maximize2 className="w-8 h-8 text-white" />
+                    <span className="text-xs font-bold text-white uppercase tracking-wide">Ampliar</span>
+                  </div>
+                )
+              )}
             </div>
 
             <h2 className="text-2xl font-bold text-white text-center mb-1">{tutor.nome}</h2>
@@ -399,7 +446,7 @@ export function TutorDetails() {
                     type="button" 
                     variant="outline" 
                     onClick={handleCancelEdit} 
-                    className="gap-2 border-white/10 text-gray-400 hover:text-white hover:bg-white/5"
+                    className="gap-2 border-white/10 text-gray-400 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all"
                   >
                     <X className="w-4 h-4" /> CANCELAR
                   </Button>

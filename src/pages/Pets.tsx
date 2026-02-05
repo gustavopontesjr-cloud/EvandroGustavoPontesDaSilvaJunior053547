@@ -43,7 +43,7 @@ export function Pets() {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Pets Cadastrados</h1>
-          <p className="text-gray-400">Gerenciamento de animais do sistema</p>
+          <p className="text-gray-200">Gerenciamento de animais do sistema</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
@@ -51,7 +51,7 @@ export function Pets() {
             <Search className="absolute left-3 top-3.5 w-5 h-5 text-gray-500" />
             <input 
               type="text"
-              placeholder="Buscar por nome..."
+              placeholder="Buscar pet..."
               className="w-full pl-10 pr-4 py-3 bg-surface border border-gray-800 rounded-lg text-white focus:ring-1 focus:ring-primary focus:border-primary focus:outline-none transition-all placeholder-gray-600"
               value={searchTerm}
               onChange={(e) => {
@@ -99,7 +99,7 @@ export function Pets() {
                       className="bg-surface rounded-xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all group flex flex-col cursor-pointer shadow-lg hover:shadow-xl hover:shadow-primary/5"
                       onClick={() => navigate(`/pets/${pet.id}`)}
                     >
-                      <div className="h-40 w-full bg-black/50 relative overflow-hidden">
+                      <div className="h-52 w-full bg-black/50 relative overflow-hidden">
                         {pet.foto ? (
                           <img 
                             src={pet.foto.url} 
@@ -119,18 +119,20 @@ export function Pets() {
                       </div>
 
                       <div className="p-4 flex-1 flex flex-col">
-                        <h3 className="text-lg font-bold text-white mb-1 truncate" title={pet.nome}>{pet.nome}</h3>
-                        <p className="text-primary text-xs font-medium mb-3 uppercase tracking-wide truncate">{pet.raca}</p>
+                        <h3 className="text-xl font-bold text-primary mb-2 truncate" title={pet.nome}>{pet.nome}</h3>
                         
-                        <span className="text-[10px] text-cyan-400 font-bold mb-2 block">ID: #{pet.id}</span>
+                        <div className="flex items-center gap-1 mb-4 text-xs font-medium text-white uppercase tracking-wide truncate">
+                          <span>Raça:</span>
+                          <span className="truncate" title={pet.raca}>{pet.raca}</span>
+                        </div>
 
-                        <div className="mt-auto border-t border-gray-800 pt-3 flex justify-between items-center">
+                        <div className="mt-auto flex justify-end items-center">
                           <button 
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/pets/${pet.id}`);
                             }}
-                            className="text-xs text-primary hover:text-white font-bold uppercase tracking-wide transition-colors flex items-center gap-2"
+                            className="text-xs text-white hover:text-primary font-bold uppercase tracking-wide transition-colors flex items-center gap-2"
                           >
                             Ver Detalhes <ChevronRight className="w-3 h-3" />
                           </button>

@@ -1,15 +1,13 @@
-# Stage 1: Build
-FROM node:18-alpine as build
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci
 
 COPY . .
 RUN npm run build
 
-# Stage 2: Production
 FROM nginx:alpine
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
